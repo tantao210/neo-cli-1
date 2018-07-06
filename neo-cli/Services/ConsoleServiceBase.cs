@@ -36,6 +36,12 @@ namespace Neo.Services
 
         protected internal abstract void OnStop();
 
+        /// <summary>
+        /// 初始化钱包
+        /// Add Code
+        /// </summary>
+        protected internal abstract void InitWallet();
+
         public static string ReadPassword(string prompt)
         {
             const string t = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
@@ -104,6 +110,7 @@ namespace Neo.Services
         public void Run(string[] args)
         {
             OnStart(args);
+            InitWallet();// 初始化钱包  AddCode
             RunConsole();
             OnStop();
         }

@@ -1108,5 +1108,63 @@ namespace Neo.Shell
             string path = Path.Combine(Settings.Default.Paths.ApplicationLogs, $"{e.Transaction.Hash}.json");
             File.WriteAllText(path, json.ToString());
         }
+
+        /// <summary>
+        /// 初始化钱包
+        /// Add Code
+        /// </summary>
+        protected internal override void InitWallet()
+        {
+            #region 测试代码 
+            // 测试钱包索引更新
+            //string[] publickeys =  { "0286036b123ada4ee19f08fb068825f203e17d0078472c126cc4317e3fc6f87135",
+            //    "02726e970bd85975ed07ad2c9f22123ea92e427537d57799f497e26a09949e3515",
+            //"0303c8f06b27689280127a60cabcbfb6a62ee7e06fe5c3cf903472c7a5afd8d502",
+            //"03ea1e4929619f27398951e2bdf17ca964066a3c3d4339364cf99ed44b4a3c8f30"};
+            //NEP6Wallet wallets = new NEP6Wallet();
+            //foreach (string publickey in publickeys)
+            //{
+            //    wallets.RegisterLocalWallet(publickey);
+            //}
+            #endregion
+
+            #region 通过文件加载钱包
+            string path = Settings.Default.Wallet.Path; // 钱包文件
+            if (!File.Exists(path))
+            {
+                FileInfo file = new FileInfo(path);
+                Directory.CreateDirectory(file.DirectoryName);
+                // 创建钱包 保存
+                NEP6Wallet wallet = new NEP6Wallet(path);
+                wallet.Unlock(GetDefaultPassword()); // 添加锁定密码 
+                WalletAccount account = wallet.CreateAccount();
+                wallet.save(); // 保存到 文件中 
+                //Program.Wallet = wallet; // 打开钱包
+                PrintAccountInfo(account);
+
+            }
+            // 重新打开钱包文件   需要把私钥从内存中去除
+            NEP6Wallet nep6wallet = new NEP6Wallet(path, GetDefaultPassword(), 1);
+            Program.Wallet = nep6wallet;
+            #endregion
+        }
+
+        /// <summary>
+        /// 钱包默认密码
+        /// </summary>
+        /// <returns>钱包密码</returns>
+        private string GetDefaultPassword()
+        {
+            return Settings.Default.Passphrase.Passphrase;
+        }
+
+        private void PrintAccountInfo(WalletAccount account)
+        {
+            //Console.WriteLine($"address: {account.Address}");
+            //Console.WriteLine($" pubkey: {account.GetKey().PublicKey.EncodePoint(true).ToHexString()}");
+            //Console.WriteLine($"privkey: {account.GetPrivateKey()}");
+            //Console.WriteLine($" WIFkey: {account.GetWIFKey()}");
+            account.Print();
+        }
     }
 }
